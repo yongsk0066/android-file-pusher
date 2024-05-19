@@ -4,6 +4,7 @@ use colored::*;
 use indicatif::{ProgressBar, ProgressStyle, MultiProgress};
 use std::time::Duration;
 use crate::file_manager::get_mp4_files;
+use crate::constants::{SD_CARD_DOWNLOAD_PATH, TRANSFER_SPEED}; 
 use std::path::Path;
 
 pub fn check_android_device() -> Result<Vec<String>> {
@@ -42,11 +43,11 @@ pub async fn push_mp4_files(source_dir: &Path, target_dir: &str) -> Result<()> {
             .tick_strings(&["|", "/", "-", "\\"]));
         file_pb.enable_steady_tick(Duration::from_millis(100)); // 스피너를 주기적으로 업데이트
 
-        let target_path = format!("/sdcard/download/{}", target_dir);
+        let target_path = format!("{}{}", SD_CARD_DOWNLOAD_PATH,target_dir);
 
         let file_name = file.file_name().unwrap().to_str().unwrap();
         let file_size = file.metadata().unwrap().len();
-        let estimated_time = file_size / 35_000_000;
+        let estimated_time = file_size / TRANSFER_SPEED;
 
         file_pb.set_message(format!(
             "{}: {} bytes / Estimated time: {}s",
@@ -76,7 +77,7 @@ pub async fn push_mp4_files(source_dir: &Path, target_dir: &str) -> Result<()> {
 }
 
 pub async fn trigger_media_scan(target_dir: &str) -> Result<()> {
-    let file_path = format!("/sdcard/download/{}", target_dir);
+    let file_path = format!("{}{}", SD_CARD_DOWNLOAD_PATH, target_dir);
 
     run_adb_command(&["shell", "am", "broadcast", "-a", "android.intent.action.MEDIA_SCANNER_SCAN_FILE", "-d", &format!("file://{}", file_path)])
         .map(|_| ())

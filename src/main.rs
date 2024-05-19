@@ -1,9 +1,11 @@
 mod adb;
 mod file_manager;
 mod user_input;
+mod constants; 
 
 use adb::{check_android_device, create_directory, push_mp4_files, trigger_media_scan};
 use file_manager::{get_directories, get_mp4_files};
+use constants::SD_CARD_DOWNLOAD_PATH;
 
 use colored::*;
 use std::path::PathBuf;
@@ -34,7 +36,7 @@ async fn run() -> Result<(), Box<dyn std::error::Error>> {
     print_mp4_files(&files);
 
     // 디렉토리 생성
-    create_directory(&format!("/sdcard/download/{}", target_dir)).await?;
+    create_directory(&format!("{}{}", SD_CARD_DOWNLOAD_PATH, target_dir)).await?;
 
     // 파일 전송
     push_mp4_files(&full_path, &target_dir).await?;
@@ -58,7 +60,7 @@ fn print_connected_devices(devices: &[String]) {
 fn print_directories(full_path: &PathBuf, target_dir: &str) {
     println!("\n{}", "====================================".blue().bold());
     println!("{}", format!("Source directory: {:?}", full_path).yellow().bold());
-    println!("{}", format!("Target directory: \"/sdcard/download/{}\"", target_dir).yellow().bold());
+    println!("{}", format!("Target directory: \"{}{}\"", SD_CARD_DOWNLOAD_PATH, target_dir).yellow().bold());
     println!("{}", "====================================".blue().bold());
 }
 
